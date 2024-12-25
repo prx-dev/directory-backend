@@ -34,7 +34,7 @@
         <postgresql.version>42.7.4</postgresql.version>
         <google.gson.version>2.10.1</google.gson.version>
         <!--        PRX Commons-->
-        <com.prx.commons.version>1.0.1</com.prx.commons.version>
+        <com.prx.commons.version>0.0.3</com.prx.commons.version>
         <com.prx.persistence.version>1.0.1</com.prx.persistence.version>
         <com.prx.security-oauth.version>0.0.1</com.prx.security-oauth.version>
         <!--        MAVEN-->
@@ -60,10 +60,8 @@
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <jwt.version>0.12.3</jwt.version>
         <!--        Test Dependencies-->
-        <!--        JUnit 4.x-->
-        <junit-core.version>4.13.1</junit-core.version>
         <!--        JUnit 5.x-->
-        <junit.jupiter.version>5.10.5</junit.jupiter.version>
+        <junit.jupiter.version>5.11.3</junit.jupiter.version>
         <junit.jupiter.core.version>5.9.3</junit.jupiter.core.version>
         <!--        Mockito-->
         <mockserver.junit.jupiter.version>5.11.2</mockserver.junit.jupiter.version>
@@ -79,17 +77,22 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring-boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+            <version>${spring-cloud-dependencies.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>2.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>${spring-boot.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jersey</artifactId>
             <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
@@ -99,7 +102,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-jersey</artifactId>
             <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
@@ -109,10 +112,25 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter</artifactId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+            <version>${spring-bootstrap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
             <version>${spring-cloud-dependencies.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-vault-config</artifactId>
+            <version>${spring-cloud-dependencies.version}</version>
+        </dependency>
         <!--        Converter-->
         <dependency>
             <groupId>org.mapstruct</groupId>
@@ -124,7 +142,6 @@
             <artifactId>mapstruct-processor</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
-
         <!--        PRX Dependencies-->
         <dependency>
             <groupId>com.prx</groupId>
@@ -133,10 +150,23 @@
         </dependency>
         <dependency>
             <groupId>com.prx</groupId>
-            <artifactId>persistence</artifactId>
-            <version>${com.prx.persistence.version}</version>
+            <artifactId>security-oauth</artifactId>
+            <version>${com.prx.security-oauth.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <version>${spring-cloud-dependencies.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.eureka</groupId>
+            <artifactId>eureka-client-jersey3</artifactId>
+            <version>2.0.3</version>
+        </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
