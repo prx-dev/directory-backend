@@ -8,7 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.UUID;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
 
 /// Service implementation for user-related operations.
 @Service
@@ -37,7 +41,18 @@ public class UserServiceImpl implements UserService {
     /// @return a ResponseEntity containing the UserCreateResponse
     @Override
     public ResponseEntity<UserCreateResponse> create(UserCreateRequest userCreateRequest) {
-        return ResponseEntity.ok(userCreateMapper.fromBackbone(backboneClient.post(userCreateMapper
-                .toBackbone(userCreateRequest, UUID.fromString(applicationId), UUID.fromString(initialRoleId)))));
+        try {
+            if(Objects.isNull(userCreateRequest)) {
+                return ResponseEntity.status(BAD_REQUEST).header("message-error", "Null content invalid").build();
+            }
+            var backboneUserCreateRequest = userCreateMapper.toBackbone(userCreateRequest, UUID.fromString(applicationId), UUID.fromString(initialRoleId));
+            var userCreateResponse = userCreateMapper.fromBackbone(backboneClient.post(backboneUserCreateRequest));
+            return ResponseEntity.ok(userCreateResponse);
+        } catch (RuntimeException e) {
+            if(e.getMessage().contains("Username already exists")) {
+                return ResponseEntity.status(CONFLICT).header("message-error", e.getMessage()).build();
+            }
+            return ResponseEntity.status(BAD_REQUEST).header("message-error", e.getMessage()).build();
+        }
     }
 }
