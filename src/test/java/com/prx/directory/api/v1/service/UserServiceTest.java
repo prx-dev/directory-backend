@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UserServiceTest {
 
@@ -16,7 +16,13 @@ class UserServiceTest {
     @Test
     @DisplayName("Create User Successfully")
     void createUserSuccessfully() {
-        UserCreateRequest request = new UserCreateRequest("Message");
+        UserCreateRequest request = new UserCreateRequest(
+                "john1",
+                "abc123",
+                "user@domain.ext",
+                "John",
+                "Connor"
+        );
         // Set necessary fields for request
         ResponseEntity<UserCreateResponse> response = userService.create(request);
         assertEquals(HttpStatus.NOT_IMPLEMENTED, response.getStatusCode());
