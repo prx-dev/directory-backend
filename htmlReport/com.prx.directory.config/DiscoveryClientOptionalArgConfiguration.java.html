@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DiscoveryClientOptionalArgConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">All Test Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.prx.directory.config</a> &gt; <span class="el_source">DiscoveryClientOptionalArgConfiguration.java</span></div><h1>DiscoveryClientOptionalArgConfiguration.java</h1><pre class="source lang-java linenums">package com.prx.directory.config;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.netflix.discovery.shared.Applications;
+import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
+import com.netflix.discovery.shared.transport.jersey3.Jersey3TransportClientFactories;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.SearchStrategy;
+import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactories;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * Configuration class for Discovery Client optional arguments.
+ * This class provides bean definitions for various components used in the Discovery Client.
+ */
+@Configuration
+public class DiscoveryClientOptionalArgConfiguration {
+
+    /**
+     * Default constructor.
+     * Creates a new instance of DiscoveryClientOptionalArgConfiguration.
+     */
+<span class="nc" id="L27">    public DiscoveryClientOptionalArgConfiguration() {</span>
+        // Default constructor
+<span class="nc" id="L29">    }</span>
+
+    /**
+     * Creates a Jersey3TransportClientFactories bean if no other TransportClientFactories bean is present.
+     *
+     * @return a Jersey3TransportClientFactories instance
+     */
+    @Bean
+    @ConditionalOnMissingBean(TransportClientFactories.class)
+    public Jersey3TransportClientFactories jersey3TransportClientFactories() {
+<span class="nc" id="L39">        return Jersey3TransportClientFactories.getInstance();</span>
+    }
+
+    /**
+     * Creates an ObjectMapper bean with a custom deserializer for Applications.
+     *
+     * @return an ObjectMapper instance
+     */
+    @Bean
+    public ObjectMapper objectMapper() {
+<span class="nc" id="L49">        ObjectMapper objectMapper = new ObjectMapper();</span>
+<span class="nc" id="L50">        SimpleModule module = new SimpleModule();</span>
+<span class="nc" id="L51">        module.addDeserializer(Applications.class, new ApplicationsDeserializer());</span>
+<span class="nc" id="L52">        objectMapper.registerModule(module);</span>
+<span class="nc" id="L53">        return objectMapper;</span>
+    }
+
+    /**
+     * Creates a RestTemplateTransportClientFactories bean if RestTemplate and JerseyClient classes are present
+     * and no other TransportClientFactories bean is present in the current context.
+     *
+     * @param optionalArgs the optional arguments for the RestTemplateDiscoveryClient
+     * @return a RestTemplateTransportClientFactories instance
+     */
+    @Bean
+    @ConditionalOnClass(name = {&quot;org.springframework.web.client.RestTemplate&quot;, &quot;org.glassfish.jersey.client.JerseyClient&quot;})
+    @ConditionalOnMissingBean(value = {TransportClientFactories.class}, search = SearchStrategy.CURRENT)
+    public RestTemplateTransportClientFactories restTemplateTransportClientFactories(RestTemplateDiscoveryClientOptionalArgs optionalArgs) {
+<span class="nc" id="L67">        return new RestTemplateTransportClientFactories(optionalArgs);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
