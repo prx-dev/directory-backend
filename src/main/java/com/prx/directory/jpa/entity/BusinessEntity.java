@@ -7,7 +7,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
@@ -55,7 +55,7 @@ public class BusinessEntity implements Serializable {
      */
     @NotNull
     @Column(name = "created_date", nullable = false)
-    private LocalDate createdDate;
+    private LocalDateTime createdDate;
 
     /**
      * The date when the business was last updated.
@@ -63,7 +63,7 @@ public class BusinessEntity implements Serializable {
      */
     @NotNull
     @Column(name = "last_update", nullable = false)
-    private LocalDate lastUpdate;
+    private LocalDateTime lastUpdate;
 
     /**
      * The category to which the business belongs.
@@ -146,7 +146,7 @@ public class BusinessEntity implements Serializable {
      *
      * @return the date when the business was created
      */
-    public LocalDate getCreatedDate() {
+    public LocalDateTime getCreatedDate() {
         return createdDate;
     }
 
@@ -155,7 +155,7 @@ public class BusinessEntity implements Serializable {
      *
      * @param createdDate the date when the business was created
      */
-    public void setCreatedDate(LocalDate createdDate) {
+    public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
     }
 
@@ -164,7 +164,7 @@ public class BusinessEntity implements Serializable {
      *
      * @return the date when the business was last updated
      */
-    public LocalDate getLastUpdate() {
+    public LocalDateTime getLastUpdate() {
         return lastUpdate;
     }
 
@@ -173,7 +173,7 @@ public class BusinessEntity implements Serializable {
      *
      * @param lastUpdate the date when the business was last updated
      */
-    public void setLastUpdate(LocalDate lastUpdate) {
+    public void setLastUpdate(LocalDateTime lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
 

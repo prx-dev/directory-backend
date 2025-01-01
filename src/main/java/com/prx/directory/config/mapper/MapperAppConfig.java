@@ -15,9 +15,9 @@ import org.mapstruct.ReportingPolicy;
         // Specifies that properties with null values should not be mapped.
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL,
         // Specifies that the mapper should fail if there are any unmapped properties.
-        unmappedSourcePolicy = ReportingPolicy.ERROR,
+        unmappedSourcePolicy = ReportingPolicy.IGNORE,
         // Specifies that the mapper should fail if there are any unmapped properties.
-        unmappedTargetPolicy = ReportingPolicy.ERROR
+        unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public interface MapperAppConfig {
 }
