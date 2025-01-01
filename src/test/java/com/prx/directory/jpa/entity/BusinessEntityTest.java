@@ -3,10 +3,10 @@ package com.prx.directory.jpa.entity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BusinessEntityTest {
 
@@ -41,7 +41,7 @@ class BusinessEntityTest {
     @DisplayName("Get Created Date Test")
     void getCreatedDateTest() {
         BusinessEntity businessEntity = new BusinessEntity();
-        LocalDate createdDate = LocalDate.now();
+        LocalDateTime createdDate = LocalDateTime.now();
         businessEntity.setCreatedDate(createdDate);
         assertEquals(createdDate, businessEntity.getCreatedDate());
     }
@@ -50,7 +50,7 @@ class BusinessEntityTest {
     @DisplayName("Get Last Update Test")
     void getLastUpdateTest() {
         BusinessEntity businessEntity = new BusinessEntity();
-        LocalDate lastUpdate = LocalDate.now();
+        LocalDateTime lastUpdate = LocalDateTime.now();
         businessEntity.setLastUpdate(lastUpdate);
         assertEquals(lastUpdate, businessEntity.getLastUpdate());
     }
