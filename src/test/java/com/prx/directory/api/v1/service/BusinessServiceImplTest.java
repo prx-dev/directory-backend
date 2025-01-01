@@ -2,6 +2,7 @@ package com.prx.directory.api.v1.service;
 
 import com.prx.directory.api.v1.to.BusinessCreateRequest;
 import com.prx.directory.api.v1.to.BusinessCreateResponse;
+import com.prx.directory.api.v1.to.BusinessTO;
 import com.prx.directory.jpa.entity.BusinessEntity;
 import com.prx.directory.jpa.entity.CategoryEntity;
 import com.prx.directory.jpa.entity.UserEntity;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -150,5 +152,51 @@ class BusinessServiceImplTest {
         businessEntity.setCreatedDate(LocalDateTime.now());
 
         return businessEntity;
+    }
+
+    @Test
+    @DisplayName("Find business by ID successfully")
+    void findBusinessByIdSuccessfully() {
+        UUID id = UUID.randomUUID();
+        BusinessEntity business = new BusinessEntity();
+
+        when(businessRepository.findById(id)).thenReturn(Optional.of(business));
+        when(businessMapper.toBusinessTO(business)).thenReturn(new BusinessTO(
+                id,
+                "Example Business",
+                "This is an example business description.",
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                "user@domain.ext",
+                "user@domain.ext",
+                "user@domain.ext",
+                "domain.ext",
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        ));
+
+        ResponseEntity<BusinessTO> response = businessService.findById(id);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Find business by non-existent ID")
+    void findBusinessByNonExistentId() {
+        UUID id = UUID.randomUUID();
+
+        when(businessRepository.findById(id)).thenReturn(Optional.empty());
+
+        ResponseEntity<BusinessTO> response = businessService.findById(id);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Find business by null ID")
+    void findBusinessByNullId() {
+        ResponseEntity<BusinessTO> response = businessService.findById(null);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }
