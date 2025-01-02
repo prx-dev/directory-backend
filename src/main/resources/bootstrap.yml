@@ -19,7 +19,7 @@ prx:
     username: ${BACKBONE_USERNAME}
     password: ${BACKBONE_PASSWORD}
 app:
-  clientRoles: directory-frontend-client, directory-frontend-client_o
+  clientRoles: directory-frontend-client
   # The environments for the application
   api:
     excludes: none
@@ -43,6 +43,7 @@ server:
       enabled: true
       mime-types: text/html,text/xml,text/plain,text/css,application/json
       min-response-size: 1024
+
 spring:
   ssl:
     bundle:
