@@ -1,6 +1,10 @@
 package com.prx.directory.jpa.repository;
 
 import com.prx.directory.jpa.entity.BusinessEntity;
+import com.prx.directory.jpa.entity.UserEntity;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
@@ -11,4 +15,6 @@ import java.util.UUID;
  * The primary key type of BusinessEntity is UUID.
  */
 public interface BusinessRepository extends JpaRepository<BusinessEntity, UUID> {
+
+    Page<BusinessEntity> findByUserEntityFk(@NotNull UserEntity userEntityFk, Pageable pageable);
 }
