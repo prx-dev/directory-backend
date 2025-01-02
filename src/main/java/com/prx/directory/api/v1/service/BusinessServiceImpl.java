@@ -3,9 +3,12 @@ package com.prx.directory.api.v1.service;
 import com.prx.directory.api.v1.to.BusinessCreateRequest;
 import com.prx.directory.api.v1.to.BusinessCreateResponse;
 import com.prx.directory.api.v1.to.BusinessTO;
+import com.prx.directory.jpa.entity.UserEntity;
 import com.prx.directory.jpa.repository.BusinessRepository;
 import com.prx.directory.mapper.BusinessMapper;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -53,5 +56,17 @@ public class BusinessServiceImpl implements BusinessService {
         return business.map(businessEntity ->
                         ResponseEntity.ok(businessMapper.toBusinessTO(businessEntity)))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ResponseEntity<Page<BusinessTO>> findByUserId(@NotNull UUID userId, Pageable pageable) {
+        UserEntity user = new UserEntity();
+        user.setId(userId);
+        var businessPage = businessRepository.findByUserEntityFk(user, pageable)
+                .map(businessMapper::toBusinessTO);
+        return ResponseEntity.ok(businessPage);
     }
 }

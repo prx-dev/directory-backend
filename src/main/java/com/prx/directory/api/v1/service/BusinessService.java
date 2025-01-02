@@ -4,6 +4,8 @@ import com.prx.directory.api.v1.to.BusinessCreateRequest;
 import com.prx.directory.api.v1.to.BusinessCreateResponse;
 import com.prx.directory.api.v1.to.BusinessTO;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -28,5 +30,13 @@ public interface BusinessService {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
+    /// Finds businesses by user ID.
+    ///
+    /// @param userId the UUID of the user
+    /// @param pageable the pagination information
+    /// @return a ResponseEntity containing a page of business transfer objects and HTTP status
+    default ResponseEntity<Page<BusinessTO>> findByUserId(UUID userId, Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    }
 
 }
