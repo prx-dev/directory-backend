@@ -3,6 +3,8 @@ package com.prx.directory.api.v1.service;
 import com.prx.directory.api.v1.to.BusinessCreateRequest;
 import com.prx.directory.api.v1.to.BusinessCreateResponse;
 import com.prx.directory.api.v1.to.BusinessTO;
+import com.prx.directory.api.v1.to.LinkBusinessProductResponse;
+import feign.Response;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +38,10 @@ public interface BusinessService {
     /// @param pageable the pagination information
     /// @return a ResponseEntity containing a page of business transfer objects and HTTP status
     default ResponseEntity<Page<BusinessTO>> findByUserId(UUID userId, Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    }
+
+    default ResponseEntity<LinkBusinessProductResponse> link(UUID businessId, UUID productId) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 

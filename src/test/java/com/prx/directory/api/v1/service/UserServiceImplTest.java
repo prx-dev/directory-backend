@@ -4,7 +4,7 @@ import com.prx.commons.pojo.Person;
 import com.prx.directory.api.v1.to.UserCreateRequest;
 import com.prx.directory.api.v1.to.UserCreateResponse;
 import com.prx.directory.client.BackboneClient;
-import com.prx.directory.client.mapper.UserCreateMapper;
+import com.prx.directory.mapper.UserCreateMapper;
 import com.prx.directory.client.to.BackboneUserCreateRequest;
 import com.prx.directory.client.to.BackboneUserCreateResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,11 +46,12 @@ class UserServiceImplTest {
     @DisplayName("Create User Successfully")
     void createUserSuccessfully() {
         UserCreateRequest request = new UserCreateRequest(
-                "john1",
                 "abc123",
                 "user@domain.ext",
                 "John",
-                "Connor"
+                "Connor",
+                LocalDate.parse("1984-05-12"),
+                "547424"
         );
         Person person = new Person();
         person.setGender("M");
@@ -112,11 +113,12 @@ class UserServiceImplTest {
     @DisplayName("Create User with Invalid Email")
     void createUserWithInvalidEmail() {
         UserCreateRequest request = new UserCreateRequest(
-                "john1",
                 "abc123",
                 "invalid-email",
                 "John",
-                "Connor"
+                "Connor",
+                LocalDate.parse("1984-05-12"),
+                "547424"
         );
         when(userCreateMapper.fromBackbone(any())).thenThrow(new RuntimeException("Invalid email"));
         when(userCreateMapper.toBackbone(any(), any(), any())).thenThrow(new RuntimeException("Invalid email"));
@@ -130,11 +132,12 @@ class UserServiceImplTest {
     @DisplayName("Create User with Existing Username")
     void createUserWithExistingUsername() {
         UserCreateRequest request = new UserCreateRequest(
-                "existingUser",
                 "abc123",
                 "user@domain.ext",
                 "John",
-                "Connor"
+                "Connor",
+                LocalDate.parse("1984-05-12"),
+                "547424"
         );
         Person person = new Person();
         person.setGender("M");

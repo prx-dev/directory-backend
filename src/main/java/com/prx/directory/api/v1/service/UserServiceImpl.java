@@ -3,7 +3,7 @@ package com.prx.directory.api.v1.service;
 import com.prx.directory.api.v1.to.UserCreateRequest;
 import com.prx.directory.api.v1.to.UserCreateResponse;
 import com.prx.directory.client.BackboneClient;
-import com.prx.directory.client.mapper.UserCreateMapper;
+import com.prx.directory.mapper.UserCreateMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

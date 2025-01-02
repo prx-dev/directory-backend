@@ -83,6 +83,43 @@ public class CampaignEntity implements Serializable {
     @JoinColumn(name = "category_fk", nullable = false)
     private CategoryEntity categoryFk;
 
+    @NotNull
+    @Column(name = "created_date", nullable = false)
+    private Instant createdDate;
+
+    @NotNull
+    @Column(name = "last_update", nullable = false)
+    private Instant lastUpdate;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "business_fk", nullable = false)
+    private BusinessEntity businessFk;
+
+    public BusinessEntity getBusinessFk() {
+        return businessFk;
+    }
+
+    public void setBusinessFk(BusinessEntity businessFk) {
+        this.businessFk = businessFk;
+    }
+
+    public Instant getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Instant lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public Instant getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Instant createdDate) {
+        this.createdDate = createdDate;
+    }
+
     public CampaignEntity() {
         // Default constructor
     }

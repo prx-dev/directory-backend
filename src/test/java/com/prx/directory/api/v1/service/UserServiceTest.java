@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UserServiceTest {
@@ -17,11 +19,12 @@ class UserServiceTest {
     @DisplayName("Create User Successfully")
     void createUserSuccessfully() {
         UserCreateRequest request = new UserCreateRequest(
-                "john1",
                 "abc123",
                 "user@domain.ext",
                 "John",
-                "Connor"
+                "Connor",
+                LocalDate.now(),
+                "5869995852"
         );
         // Set necessary fields for request
         ResponseEntity<UserCreateResponse> response = userService.create(request);

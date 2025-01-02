@@ -8,7 +8,6 @@ import java.util.UUID;
 
 /// Request object for creating a business.
 public record BusinessCreateRequest(
-        UUID id,
         @NotNull @NotEmpty
         String name,
         @NotNull
@@ -28,7 +27,6 @@ public record BusinessCreateRequest(
     @Override
     public String toString() {
         return "BusinessCreateRequest{" +
-                "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", categoryId=" + categoryId +
