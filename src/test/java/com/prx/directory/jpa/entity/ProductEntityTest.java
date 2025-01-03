@@ -2,10 +2,11 @@ package com.prx.directory.jpa.entity;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProductEntityTest {
 
@@ -36,17 +37,17 @@ class ProductEntityTest {
     @Test
     void getCreateDate() {
         ProductEntity productEntity = new ProductEntity();
-        LocalDate createDate = LocalDate.now();
-        productEntity.setCreateDate(createDate);
-        assertEquals(createDate, productEntity.getCreateDate());
+        LocalDateTime createDate = LocalDateTime.now();
+        productEntity.setCreatedDate(createDate);
+        assertEquals(createDate, productEntity.getCreatedDate());
     }
 
     @Test
     void getLastDate() {
         ProductEntity productEntity = new ProductEntity();
-        LocalDate lastDate = LocalDate.now();
-        productEntity.setLastDate(lastDate);
-        assertEquals(lastDate, productEntity.getLastDate());
+        LocalDateTime lastDate = LocalDateTime.now();
+        productEntity.setLastUpdate(lastDate);
+        assertEquals(lastDate, productEntity.getLastUpdate());
     }
 
     @Test

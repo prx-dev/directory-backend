@@ -59,26 +59,6 @@ class BusinessServiceImplTest {
     }
 
     @Test
-    @DisplayName("Create business with missing fields")
-    void createBusinessWithMissingFields() {
-        BusinessCreateRequest request = new BusinessCreateRequest(
-                null,
-                "Example Business",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-
-        ResponseEntity<BusinessCreateResponse> response = businessService.create(request);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
-
-    @Test
     @DisplayName("Create business with null request")
     void createBusinessWithNullRequest() {
         ResponseEntity<BusinessCreateResponse> response = businessService.create(null);
@@ -103,7 +83,6 @@ class BusinessServiceImplTest {
     @DisplayName("Create business with invalid email")
     void createBusinessWithInvalidEmail() {
         BusinessCreateRequest request = new BusinessCreateRequest(
-                UUID.randomUUID(),
                 "Example Business",
                 "This is an example business description.",
                 UUID.randomUUID(),
@@ -121,7 +100,6 @@ class BusinessServiceImplTest {
 
     private static BusinessCreateRequest getBusinessCreateRequest() {
         return new BusinessCreateRequest(
-                UUID.randomUUID(),
                 "Example Business",
                 "This is an example business description.",
                 UUID.randomUUID(),

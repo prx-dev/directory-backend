@@ -66,16 +66,16 @@ class CategoryEntityTest {
     void getCreateDate() {
         CategoryEntity categoryEntity = new CategoryEntity();
         Instant createDate = Instant.now();
-        categoryEntity.setCreateDate(createDate);
-        assertEquals(createDate, categoryEntity.getCreateDate());
+        categoryEntity.setCreatedDate(createDate);
+        assertEquals(createDate, categoryEntity.getCreatedDate());
     }
 
     @Test
     @DisplayName("Set Create Date to Null")
     void setCreateDateToNull() {
         CategoryEntity categoryEntity = new CategoryEntity();
-        categoryEntity.setCreateDate(null);
-        assertNull(categoryEntity.getCreateDate());
+        categoryEntity.setCreatedDate(null);
+        assertNull(categoryEntity.getCreatedDate());
     }
 
     @Test

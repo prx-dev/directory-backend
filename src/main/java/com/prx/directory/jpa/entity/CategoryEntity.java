@@ -63,8 +63,8 @@ public class CategoryEntity implements Serializable {
      * This field is required.
      */
     @NotNull
-    @Column(name = "create_date", nullable = false)
-    private Instant createDate;
+    @Column(name = "created_date", nullable = false)
+    private Instant createdDate;
 
     /**
      * The date when the category was last updated.
@@ -164,8 +164,8 @@ public class CategoryEntity implements Serializable {
      *
      * @return the date when the category was created
      */
-    public Instant getCreateDate() {
-        return createDate;
+    public Instant getCreatedDate() {
+        return createdDate;
     }
 
     /**
@@ -173,8 +173,8 @@ public class CategoryEntity implements Serializable {
      *
      * @param createDate the date when the category was created
      */
-    public void setCreateDate(Instant createDate) {
-        this.createDate = createDate;
+    public void setCreatedDate(Instant createDate) {
+        this.createdDate = createDate;
     }
 
     /**

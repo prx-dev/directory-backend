@@ -19,7 +19,6 @@ class BusinessServiceTest {
     @DisplayName("Create business successfully")
     void createBusinessSuccessfully() {
         BusinessCreateRequest request = new BusinessCreateRequest(
-                UUID.randomUUID(),
                 "Example Business",
                 "This is an example business description.",
                 UUID.randomUUID(),

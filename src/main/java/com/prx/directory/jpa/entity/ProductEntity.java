@@ -7,7 +7,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
@@ -55,16 +55,16 @@ public class ProductEntity implements Serializable {
      * This field is required.
      */
     @NotNull
-    @Column(name = "create_date", nullable = false)
-    private LocalDate createDate;
+    @Column(name = "created_date", nullable = false)
+    private LocalDateTime createdDate;
 
     /**
      * The date when the product was last updated.
      * This field is required.
      */
     @NotNull
-    @Column(name = "last_date", nullable = false)
-    private LocalDate lastDate;
+    @Column(name = "last_update", nullable = false)
+    private LocalDateTime lastUpdate;
 
     /**
      * Indicates whether the product is active.
@@ -147,8 +147,8 @@ public class ProductEntity implements Serializable {
      *
      * @return the date when the product was created
      */
-    public LocalDate getCreateDate() {
-        return createDate;
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
     }
 
     /**
@@ -156,8 +156,8 @@ public class ProductEntity implements Serializable {
      *
      * @param createDate the date when the product was created
      */
-    public void setCreateDate(LocalDate createDate) {
-        this.createDate = createDate;
+    public void setCreatedDate(LocalDateTime createDate) {
+        this.createdDate = createDate;
     }
 
     /**
@@ -165,8 +165,8 @@ public class ProductEntity implements Serializable {
      *
      * @return the date when the product was last updated
      */
-    public LocalDate getLastDate() {
-        return lastDate;
+    public LocalDateTime getLastUpdate() {
+        return lastUpdate;
     }
 
     /**
@@ -174,8 +174,8 @@ public class ProductEntity implements Serializable {
      *
      * @param lastDate the date when the product was last updated
      */
-    public void setLastDate(LocalDate lastDate) {
-        this.lastDate = lastDate;
+    public void setLastUpdate(LocalDateTime lastDate) {
+        this.lastUpdate = lastDate;
     }
 
     /**

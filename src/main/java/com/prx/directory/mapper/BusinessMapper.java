@@ -26,7 +26,7 @@ public interface BusinessMapper {
     ///
     /// @param businessCreateRequest The BusinessCreateRequest object to convert.
     /// @return The converted BusinessEntity object.
-    @Mapping(target = "id", source = "id")
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", source = "name")
     @Mapping(target = "description", source = "description")
     @Mapping(target = "createdDate", expression = "java(java.time.LocalDateTime.now())")
