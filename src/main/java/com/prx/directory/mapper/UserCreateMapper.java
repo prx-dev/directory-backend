@@ -43,7 +43,7 @@ public interface UserCreateMapper {
 
     default String aliasRandom(UserCreateRequest userCreateRequest) {
         SecureRandom random = new SecureRandom();
-        byte[] bytes = new byte[20];
+        byte[] bytes = new byte[3];
         random.nextBytes(bytes);
         if (userCreateRequest.firstname().length() >= 2 && userCreateRequest.lastname().length() >= 4) {
             return userCreateRequest.firstname().substring(0, 1).toLowerCase().concat(userCreateRequest.lastname().toLowerCase());
