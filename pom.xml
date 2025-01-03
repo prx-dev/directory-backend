@@ -298,8 +298,7 @@
                 <configuration>
                     <forkCount>3</forkCount>
                     <reuseForks>false</reuseForks>
-                    <argLine>-Xmx1024m -XX:MaxPermSize=256m -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
-                    </argLine>
+                    <argLine>-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
                     <systemPropertyVariables>
                         <databaseSchema>MY_TEST_SCHEMA_${surefire.forkNumber}</databaseSchema>
                     </systemPropertyVariables>
