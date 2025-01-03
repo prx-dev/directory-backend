@@ -3,6 +3,7 @@ LABEL version="0.0.1"
 LABEL description="Directory Backend API"
 LABEL mantainer="Luis Mata luis.antonio.mata@gmail.com"
 
+ARG RESOURCE_PATH=/
 ARG TARGET_FILE=target/
 ARG KEYSTORE_FILE=keystore
 ARG BACKBONE_ALIAS=backbone
@@ -14,7 +15,6 @@ ARG AUTH_CRT_NAME=prx-qa.manager
 ARG APP_CRT_ALIAS=directory-rest.tst
 ARG CNFS_CRT_NAME=prx-qa.config-server
 ARG APP_CRT_FILE_NAME=directory-rest
-ARG RESOURCE_PATH=src/main/resources/
 WORKDIR /usr/local/runme
 COPY ${TARGET_FILE}${JAR_FILE} ${JAR_FILE}
 COPY ${RESOURCE_PATH}${APP_CRT_FILE_NAME}.crt ${APP_CRT_FILE_NAME}.crt
