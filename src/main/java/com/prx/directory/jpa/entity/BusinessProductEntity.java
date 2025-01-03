@@ -6,7 +6,6 @@ import org.hibernate.annotations.ColumnDefault;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity

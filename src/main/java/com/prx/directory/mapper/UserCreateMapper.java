@@ -7,6 +7,7 @@ import com.prx.directory.client.to.BackboneUserCreateRequest;
 import com.prx.directory.client.to.BackboneUserCreateResponse;
 import org.mapstruct.*;
 
+import java.security.SecureRandom;
 import java.util.UUID;
 
 @Mapper(
@@ -41,11 +42,14 @@ public interface UserCreateMapper {
     UserCreateResponse fromBackbone(BackboneUserCreateResponse backboneUserCreateResponse);
 
     default String aliasRandom(UserCreateRequest userCreateRequest) {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[20];
+        random.nextBytes(bytes);
         if (userCreateRequest.firstname().length() >= 2 && userCreateRequest.lastname().length() >= 4) {
             return userCreateRequest.firstname().substring(0, 1).toLowerCase().concat(userCreateRequest.lastname().toLowerCase());
         }
         return userCreateRequest.firstname().toLowerCase().concat("-")
-                .concat(userCreateRequest.lastname().toLowerCase()) + Math.random();
+                .concat(userCreateRequest.lastname().toLowerCase()) + random.nextInt();
     }
 
     default Person getPerson(UserCreateRequest userCreateRequest) {
