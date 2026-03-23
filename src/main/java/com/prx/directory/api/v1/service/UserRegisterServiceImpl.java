@@ -52,11 +52,11 @@ public class UserRegisterServiceImpl implements UserRegisterService {
         AuthRequest mercuryAuthRequest = new AuthRequest(userResponse.alias(), userResponse.password());
         try {
             var mercuryToken = mercuryClient.token(sessionTokenBkd, mercuryAuthRequest);
-
             return mercuryClient.confirmCode(mercuryToken.token(),
                     confirmCodeMapper.toVerificationCodeRequest(confirmCodeRequest, applicationId));
         } catch (FeignException e) {
-            Optional<String> message = e.responseHeaders().get(MESSAGE_HEADER).stream().findFirst();
+            Optional<String> message = Optional.ofNullable(e.responseHeaders().get(MESSAGE_HEADER))
+                    .flatMap(h -> h.stream().findFirst());
             return ResponseEntity.status(e.status())
                     .header(MESSAGE_HEADER, message.orElse(""))
                     .build();
