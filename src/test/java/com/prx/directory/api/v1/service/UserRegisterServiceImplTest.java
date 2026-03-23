@@ -76,6 +76,22 @@ class UserRegisterServiceImplTest {
         assertTrue(resp.getHeaders().containsKey("message"));
     }
 
+    @Test
+    @DisplayName("confirmCode: Feign error without message header returns status and empty header")
+    void confirmCode_feignErrorWithoutMessageHeader() {
+        UUID userId = UUID.randomUUID();
+        var userResp = new BackboneUserGetResponse(userId, "alias","pass","email","disp", LocalDateTime.now(), LocalDateTime.now(),true,true,true,true,null, List.of(), List.of());
+        when(backboneClient.findUserById(userId)).thenReturn(userResp);
+        when(mercuryClient.token(anyString(), any(AuthRequest.class))).thenReturn(new PrxTokenString("t"));
+        when(confirmCodeMapper.toVerificationCodeRequest(any(), any())).thenAnswer(inv -> new VerificationCodeRequest(inv.getArgument(1), userId, "123456789"));
+
+        FeignException ex = new FeignException.BadRequest("bad", mockRequest(), new byte[0], new HashMap<>());
+        when(mercuryClient.confirmCode(anyString(), any(VerificationCodeRequest.class))).thenThrow(ex);
+
+        var resp = service.confirmCode("bkd", new ConfirmCodeRequest(userId, "123456789"));
+        assertEquals(400, resp.getStatusCode().value());
+    }
+
     private static feign.Request mockRequest() {
         return feign.Request.create(feign.Request.HttpMethod.GET, "http://x", Map.of(), null, StandardCharsets.UTF_8, null);
     }
