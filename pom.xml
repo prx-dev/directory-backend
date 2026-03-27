@@ -68,7 +68,7 @@
         <jwt.version>0.12.3</jwt.version>
         <snakeyaml.version>2.5</snakeyaml.version>
         <org.json.version>20250517</org.json.version>
-        <plexus.utils.version>4.0.2</plexus.utils.version>
+        <plexus.utils.version>4.0.3</plexus.utils.version>
         <rewrite.plugin.version>5.42.0</rewrite.plugin.version>
         <rewrite.recipe.version>5.21.0</rewrite.recipe.version>
         <asm.version>9.7</asm.version>
