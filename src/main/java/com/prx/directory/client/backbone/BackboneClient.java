@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 import static com.prx.security.constant.ConstantApp.SESSION_TOKEN_KEY;
@@ -60,4 +61,10 @@ public interface BackboneClient {
     @GetMapping("/api/v1/profile/image/application/{applicationId}/reference")
     ResponseEntity<BackboneProfileImageRefResponse> getProfileImageRef(@RequestHeader(SESSION_TOKEN_KEY) String sessionToken,
                                                                        @PathVariable("applicationId") UUID applicationId);
+
+    @GetMapping("/api/v1/contact-types/list-all")
+    List<ContactType> findAllContactType();
+
+    @GetMapping("/api/v1/contact-types/{contactTypeId}")
+    BackboneContactTypeGetResponse findContactTypeById(@PathVariable UUID contactTypeId);
 }

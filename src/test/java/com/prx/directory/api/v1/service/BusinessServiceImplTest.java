@@ -5,6 +5,7 @@ import com.prx.commons.general.pojo.Role;
 import com.prx.directory.api.v1.to.*;
 import com.prx.directory.client.backbone.BackboneClient;
 import com.prx.directory.client.backbone.to.BackboneUserGetResponse;
+import com.prx.directory.client.backbone.to.ContactType;
 import com.prx.directory.constant.ContactTypeKey;
 import com.prx.directory.constant.RoleKey;
 import com.prx.directory.jpa.entity.BusinessEntity;
@@ -23,6 +24,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -51,6 +54,12 @@ class BusinessServiceImplTest {
     @Mock
     private BusinessMapper businessMapper;
 
+    @Mock
+    private EntityManager entityManager;
+
+    @Mock
+    private TypedQuery<ContactTypeEntity> contactTypeQuery;
+
     @InjectMocks
     private BusinessServiceImpl businessService;
 
@@ -58,6 +67,13 @@ class BusinessServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         ReflectionTestUtils.setField(businessService, "initialRoleId", "3165ff6c-cdc3-4cbb-a19f-2252b15be6e2");
+
+        when(backboneClient.findAllContactType()).thenReturn(List.of(
+                new ContactType(UUID.fromString("00000000-0000-0000-0000-000000000011"), ContactTypeKey.EML.toString(), "email", true),
+                new ContactType(UUID.fromString("00000000-0000-0000-0000-000000000012"), ContactTypeKey.WBH.toString(), "website", true),
+                new ContactType(UUID.fromString("00000000-0000-0000-0000-000000000013"), ContactTypeKey.SCE.toString(), "customer_service_email", true),
+                new ContactType(UUID.fromString("00000000-0000-0000-0000-000000000014"), ContactTypeKey.MEC.toString(), "order_management_email", true)
+        ));
     }
 
     // --- create(...) tests ---
@@ -551,6 +567,7 @@ class BusinessServiceImplTest {
     @DisplayName("update - existing digital contact same content -> no save")
     void update_existingDigitalContact_sameContent_noSave() {
         UUID businessId = UUID.randomUUID();
+        UUID emailTypeId = UUID.fromString("00000000-0000-0000-0000-000000000011");
         BusinessUpdateRequest request = new BusinessUpdateRequest(
                 null,
                 null,
@@ -564,8 +581,10 @@ class BusinessServiceImplTest {
         BusinessEntity existingBusiness = new BusinessEntity();
         existingBusiness.setId(businessId);
         ContactTypeEntity ct = new ContactTypeEntity();
+        ct.setId(emailTypeId);
         ct.setName(ContactTypeKey.EML.toString());
         com.prx.directory.jpa.entity.DigitalContactEntity dc = new com.prx.directory.jpa.entity.DigitalContactEntity();
+        dc.setContactTypeFk(emailTypeId);
         dc.setContactType(ct);
         dc.setContent("same@example.com");
         Set<com.prx.directory.jpa.entity.DigitalContactEntity> contacts = new HashSet<>();
@@ -723,5 +742,71 @@ class BusinessServiceImplTest {
 
         Set<UUID> result = businessService.findIdByUserId(userId);
         assertEquals(ids, result);
+    }
+
+    @Test
+    @DisplayName("update - resolves contact type id from backbone list-all when creating digital contact")
+    void update_resolvesContactTypeFromRepository() {
+        UUID businessId = UUID.randomUUID();
+        UUID contactTypeId = UUID.randomUUID();
+        BusinessUpdateRequest request = new BusinessUpdateRequest(
+                null,
+                null,
+                null,
+                null,
+                "new@example.com",
+                null,
+                null,
+                null);
+
+        BusinessEntity existingBusiness = new BusinessEntity();
+        existingBusiness.setId(businessId);
+        existingBusiness.setDigitalContacts(new HashSet<>());
+
+        when(backboneClient.findAllContactType()).thenReturn(List.of(
+                new ContactType(contactTypeId, ContactTypeKey.EML.toString(), "email", true),
+                new ContactType(UUID.randomUUID(), ContactTypeKey.WBH.toString(), "website", true),
+                new ContactType(UUID.randomUUID(), ContactTypeKey.SCE.toString(), "customer_service_email", true),
+                new ContactType(UUID.randomUUID(), ContactTypeKey.MEC.toString(), "order_management_email", true)
+        ));
+        when(businessRepository.findBusinessWithDigitalContactsById(businessId)).thenReturn(Optional.of(existingBusiness));
+        when(businessRepository.save(any(BusinessEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ResponseEntity<BusinessUpdateResponse> response = businessService.update(businessId, request);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(backboneClient).findAllContactType();
+        assertFalse(existingBusiness.getDigitalContacts().isEmpty());
+        var savedContact = existingBusiness.getDigitalContacts().iterator().next();
+        assertEquals(contactTypeId, savedContact.getContactTypeFk());
+    }
+
+    @Test
+    @DisplayName("update - missing contact type returns BAD_REQUEST with message header")
+    void update_missingContactType_returnsBadRequest() {
+        UUID businessId = UUID.randomUUID();
+        BusinessUpdateRequest request = new BusinessUpdateRequest(
+                null,
+                null,
+                null,
+                null,
+                "new@example.com",
+                null,
+                null,
+                null);
+
+        BusinessEntity existingBusiness = new BusinessEntity();
+        existingBusiness.setId(businessId);
+
+        when(businessRepository.findBusinessWithDigitalContactsById(businessId)).thenReturn(Optional.of(existingBusiness));
+        when(backboneClient.findAllContactType()).thenReturn(List.of(
+                new ContactType(UUID.randomUUID(), ContactTypeKey.WBH.toString(), "website", true)
+        ));
+
+        ResponseEntity<BusinessUpdateResponse> response = businessService.update(businessId, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Contact type not found for key EML", response.getHeaders().getFirst("message"));
+        verify(digitalContactRepository, never()).save(any());
     }
 }

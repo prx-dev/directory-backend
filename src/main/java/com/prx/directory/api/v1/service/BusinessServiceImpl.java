@@ -3,9 +3,9 @@ package com.prx.directory.api.v1.service;
 import com.prx.directory.api.v1.to.*;
 import com.prx.directory.client.backbone.BackboneClient;
 import com.prx.directory.client.backbone.to.BackboneUserUpdateRequest;
+import com.prx.directory.client.backbone.to.ContactType;
 import com.prx.directory.constant.ContactTypeKey;
 import com.prx.directory.jpa.entity.CategoryEntity;
-import com.prx.directory.jpa.entity.ContactTypeEntity;
 import com.prx.directory.jpa.entity.DigitalContactEntity;
 import com.prx.directory.jpa.entity.UserEntity;
 import com.prx.directory.jpa.repository.BusinessRepository;
@@ -22,14 +22,23 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.prx.directory.constant.DirectoryAppConstants.MESSAGE_HEADER;
 import static com.prx.directory.constant.RoleKey.LH_STANDARD;
 
-/// Service implementation for business-related operations.
+/** Service implementation for business-related operations. */
 @Service
+@SuppressWarnings("PMD.GodClass") // Class has many responsibilities; decomposed some logic but further refactor is recommended
 public class BusinessServiceImpl implements BusinessService {
+
+    private static final Set<ContactTypeKey> SUPPORTED_CONTACT_TYPES = EnumSet.of(
+            ContactTypeKey.EML,
+            ContactTypeKey.WBH,
+            ContactTypeKey.SCE,
+            ContactTypeKey.MEC
+    );
 
     private final UserService userService;
     private final BusinessRepository businessRepository;
@@ -37,6 +46,8 @@ public class BusinessServiceImpl implements BusinessService {
     private final DigitalContactRepository digitalContactRepository;
     private final BusinessMapper businessMapper;
     private final BackboneClient backboneClient;
+    private final Map<ContactTypeKey, UUID> contactTypeIds = new ConcurrentHashMap<>();
+
     @Value("${prx.directory.application-id}")
     private UUID applicationId;
     @Value("${prx.directory.role-id}")
@@ -100,6 +111,41 @@ public class BusinessServiceImpl implements BusinessService {
                     .header(MESSAGE_HEADER, "A conflict occurred while creating the business.")
                     .build();
         }
+    }
+
+    private void loadContactTypeIds() {
+        List<ContactType> contactTypeCollection;
+
+        try {
+            contactTypeCollection = Optional.ofNullable(backboneClient.findAllContactType()).orElse(Collections.emptyList());
+        } catch (RuntimeException ex) {
+            throw new IllegalArgumentException("Contact types are not available.", ex);
+        }
+
+        var resolvedContactTypeIds = new EnumMap<ContactTypeKey, UUID>(ContactTypeKey.class);
+        for (var contactType : contactTypeCollection) {
+            if (Objects.isNull(contactType) || Objects.isNull(contactType.id()) || Objects.isNull(contactType.name())) {
+                continue;
+            }
+            var key = mapContactTypeKey(contactType.name());
+            if (Objects.nonNull(key)) {
+                resolvedContactTypeIds.put(key, contactType.id());
+            }
+        }
+
+        contactTypeIds.clear();
+        contactTypeIds.putAll(resolvedContactTypeIds);
+    }
+
+    private ContactTypeKey mapContactTypeKey(String contactTypeName) {
+        var normalized = contactTypeName.trim().toUpperCase(Locale.ROOT);
+        return switch (normalized) {
+            case "EML", "EMAIL" -> ContactTypeKey.EML;
+            case "WBH", "WEBSITE" -> ContactTypeKey.WBH;
+            case "SCE", "CUSTOMER_SERVICE_EMAIL" -> ContactTypeKey.SCE;
+            case "MEC", "ORDER_MANAGEMENT_EMAIL" -> ContactTypeKey.MEC;
+            default -> null;
+        };
     }
 
     private ResponseEntity<BusinessCreateResponse> getBusinessCreateResponseResponseEntity(BusinessCreateRequest businessCreateRequest) {
@@ -257,20 +303,44 @@ public class BusinessServiceImpl implements BusinessService {
                         .header(MESSAGE_HEADER, "Website URL format is invalid.")
                         .build();
             }
-            updated |= updateOrCreateDigitalContact(existingBusiness, ContactTypeKey.WBH, request.website());
+            try {
+                updated |= updateOrCreateDigitalContact(existingBusiness, ContactTypeKey.WBH, request.website());
+            } catch (IllegalArgumentException ex) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .header(MESSAGE_HEADER, ex.getMessage())
+                        .build();
+            }
         }
 
         // Update email contacts
         if (Objects.nonNull(request.email())) {
-            updated |= updateOrCreateDigitalContact(existingBusiness, ContactTypeKey.EML, request.email());
+            try {
+                updated |= updateOrCreateDigitalContact(existingBusiness, ContactTypeKey.EML, request.email());
+            } catch (IllegalArgumentException ex) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .header(MESSAGE_HEADER, ex.getMessage())
+                        .build();
+            }
         }
 
         if (Objects.nonNull(request.customerServiceEmail())) {
-            updated |= updateOrCreateDigitalContact(existingBusiness, ContactTypeKey.SCE, request.customerServiceEmail());
+            try {
+                updated |= updateOrCreateDigitalContact(existingBusiness, ContactTypeKey.SCE, request.customerServiceEmail());
+            } catch (IllegalArgumentException ex) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .header(MESSAGE_HEADER, ex.getMessage())
+                        .build();
+            }
         }
 
         if (Objects.nonNull(request.orderManagementEmail())) {
-            updated |= updateOrCreateDigitalContact(existingBusiness, ContactTypeKey.MEC, request.orderManagementEmail());
+            try {
+                updated |= updateOrCreateDigitalContact(existingBusiness, ContactTypeKey.MEC, request.orderManagementEmail());
+            } catch (IllegalArgumentException ex) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .header(MESSAGE_HEADER, ex.getMessage())
+                        .build();
+            }
         }
 
         // Update lastUpdate timestamp if any field was updated
@@ -296,44 +366,57 @@ public class BusinessServiceImpl implements BusinessService {
             return false;
         }
 
+        var contactTypeId = resolveContactTypeId(contactTypeKey);
         var digitalContacts = business.getDigitalContacts();
         if (Objects.isNull(digitalContacts)) {
             digitalContacts = new HashSet<>();
             business.setDigitalContacts(digitalContacts);
         }
 
-        // Find existing digital contact
+        // Find existing digital contact by stored FK; fallback to relation id for backward compatibility.
         var existingContact = digitalContacts.stream()
-                .filter(dc -> contactTypeKey.toString().equals(dc.getContactType().getName()))
+                .filter(dc -> Objects.equals(contactTypeId, dc.getContactTypeFk())
+                        || (Objects.nonNull(dc.getContactType()) && Objects.equals(contactTypeId, dc.getContactType().getId())))
                 .findFirst();
 
         if (existingContact.isPresent()) {
-            // Update existing contact
             var contact = existingContact.get();
             if (!content.equals(contact.getContent())) {
                 contact.setContent(content);
                 contact.setLastUpdate(LocalDateTime.now());
+                contact.setContactTypeFk(contactTypeId);
                 digitalContactRepository.save(contact);
                 return true;
             }
             return false;
         } else {
-            // Create new digital contact
+            // Create new digital contact when business has no contacts or this contact type is missing.
             DigitalContactEntity newContact = new DigitalContactEntity();
             newContact.setContent(content);
             newContact.setBusiness(business);
             newContact.setCreatedDate(LocalDateTime.now());
             newContact.setLastUpdate(LocalDateTime.now());
-
-            // Set contact type
-            ContactTypeEntity contactType = new ContactTypeEntity();
-            contactType.setName(contactTypeKey.toString());
-            newContact.setContactType(contactType);
+            newContact.setContactTypeFk(contactTypeId);
 
             digitalContacts.add(newContact);
             digitalContactRepository.save(newContact);
             return true;
         }
+    }
+
+    private UUID resolveContactTypeId(ContactTypeKey contactTypeKey) {
+        var configuredContactTypeId = mapContactTypeId(contactTypeKey);
+        if (Objects.isNull(configuredContactTypeId)) {
+            throw new IllegalArgumentException("Contact type not found for key " + contactTypeKey);
+        }
+        return configuredContactTypeId;
+    }
+
+    private UUID mapContactTypeId(ContactTypeKey contactTypeKey) {
+        if (!contactTypeIds.keySet().containsAll(SUPPORTED_CONTACT_TYPES)) {
+            loadContactTypeIds();
+        }
+        return contactTypeIds.get(contactTypeKey);
     }
 
     /**
@@ -391,7 +474,18 @@ public class BusinessServiceImpl implements BusinessService {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
-    // Helper method to validate URL format
+    /**
+     * A helper method designed to perform a specific, singular functionality
+     * within the larger context of an application. The exact purpose of the method
+     * should be determined by the implementing logic.
+     * <p>
+     * This method is intended to encapsulate reusable behavior to reduce code
+     * duplication and improve modularity. It may handle common operations,
+     * validations, transformations, or utility tasks.
+     * <p>
+     * Note: Further details about the behavior or its parameters, return type,
+     * and exceptions (if applicable) should be provided upon implementation.
+     */
     private boolean isValidUrl(String url) {
         return url.matches("^(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})([/\\w .-]*)*/?$");
     }
