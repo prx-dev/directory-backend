@@ -11,15 +11,12 @@ ARG JAR_FILE=directory-backend.jar
 ARG SRMN_CRT_ALIAS=servicemonitor
 ARG BACKBONE_FILE_NAME=backbone
 ARG AUTH_CRT_NAME=prx-qa.manager
-ARG APP_CRT_ALIAS=directory-rest.tst
 ARG CNFS_CRT_NAME=prx-qa.config-server
-ARG APP_CRT_FILE_NAME=directory-rest
 ARG SUPABASE_CRT_FILE_NAME=prod-ca-2021
 ARG RESOURCE_PATH=src/main/resources/
 WORKDIR /usr/local/runme
 COPY ${TARGET_FILE}${JAR_FILE} ${JAR_FILE}
 COPY ${RESOURCE_PATH}${SUPABASE_CRT_FILE_NAME}.crt ${SUPABASE_CRT_FILE_NAME}.crt
-COPY ${RESOURCE_PATH}${APP_CRT_FILE_NAME}.crt ${APP_CRT_FILE_NAME}.crt
 COPY ${RESOURCE_PATH}${AUTH_CRT_NAME}.crt ${AUTH_CRT_NAME}.crt
 COPY ${RESOURCE_PATH}${BACKBONE_FILE_NAME}.crt ${BACKBONE_FILE_NAME}.crt
 COPY ${RESOURCE_PATH}${SRMN_CRT_FILE_NAME}.crt ${SRMN_CRT_FILE_NAME}.crt
@@ -30,8 +27,7 @@ RUN addgroup -S appmng && adduser -S jvapps -G appmng
 RUN chown -R jvapps:appmng .
 RUN chmod -R 740 .
 
-RUN keytool -import -alias ${APP_CRT_ALIAS} -keystore /usr/lib/jvm/default-jvm/jre/lib/security/cacerts -file ${APP_CRT_FILE_NAME}.crt -storepass changeit -noprompt && \
-    keytool -import -alias ${AUTH_CRT_NAME}.tst -keystore /usr/lib/jvm/default-jvm/jre/lib/security/cacerts -file ${AUTH_CRT_NAME}.crt -storepass changeit -noprompt && \
+RUN keytool -import -alias ${AUTH_CRT_NAME}.tst -keystore /usr/lib/jvm/default-jvm/jre/lib/security/cacerts -file ${AUTH_CRT_NAME}.crt -storepass changeit -noprompt && \
     keytool -import -alias ${BACKBONE_ALIAS}.tst -keystore /usr/lib/jvm/default-jvm/jre/lib/security/cacerts -file ${BACKBONE_FILE_NAME}.crt -storepass changeit -noprompt && \
     keytool -import -alias ${SRMN_CRT_FILE_NAME} -keystore /usr/lib/jvm/default-jvm/jre/lib/security/cacerts -file ${SRMN_CRT_FILE_NAME}.crt -storepass changeit -noprompt && \
     keytool -import -alias ${CNFS_CRT_NAME} -keystore /usr/lib/jvm/default-jvm/jre/lib/security/cacerts -file ${CNFS_CRT_NAME}.crt -storepass changeit -noprompt && \
