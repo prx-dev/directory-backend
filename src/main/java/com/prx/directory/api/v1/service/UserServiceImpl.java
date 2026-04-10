@@ -96,6 +96,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<UserCreateResponse> create(UserCreateRequest userCreateRequest) {
+        logger.trace("create() invoked");
         logger.debug("Creating user: {}", userCreateRequest);
         UUID applicationID = UUID.fromString(applicationIdString);
         try {
@@ -103,12 +104,15 @@ public class UserServiceImpl implements UserService {
                 logger.warn("Content null invalid");
                 return ResponseEntity.status(BAD_REQUEST).header(MESSAGE_ERROR_HEADER, "Content null invalid").build();
             }
+            logger.trace("Validating email '{}' against Backbone for application {}", userCreateRequest.email(), applicationID);
             backboneClient.checkEmail(userCreateRequest.email(), applicationID);
             var backboneUserCreateRequest = userCreateMapper.toBackbone(userCreateRequest,
                     applicationID, UUID.fromString(initialRoleId), generateAlias(userCreateRequest, true, 1));
             logger.debug("Creating user: {}", backboneUserCreateRequest);
             var userCreateResponse = userCreateMapper.fromBackbone(backboneClient.post(backboneUserCreateRequest));
+            logger.trace("Backbone user created with id {}", userCreateResponse.id());
             emailMessageProducerService.sendMessage(toEmailMessageTO(userCreateRequest, userCreateResponse));
+            logger.info("User created successfully with id {}", userCreateResponse.id());
             return ResponseEntity.status(HttpStatus.CREATED).body(userCreateResponse);
         } catch (FeignException e) {
             logger.warn("Error creating user: {}", e.getMessage());
@@ -121,10 +125,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<GetUserResponse> findUser(String token, UUID id) {
+        logger.trace("findUser() invoked for userId {}", id);
         UUID applicationID = UUID.fromString(applicationIdString);
         BackboneUserGetResponse result;
         try {
             result = backboneClient.findUserById(id);
+            logger.debug("Backbone user loaded for userId {}", id);
         } catch (FeignException e) {
             logger.warn("Error fetching user {} from backbone: {}", id, e.getMessage());
             if (e.status() == HttpStatus.NOT_FOUND.value()) {
@@ -141,6 +147,7 @@ public class UserServiceImpl implements UserService {
 
         String profileRef = "";
         try {
+            logger.trace("Fetching profile image reference for userId {} and application {}", id, applicationID);
             var profileImageRef = backboneClient.getProfileImageRef(token, applicationID);
             profileRef = Objects.nonNull(profileImageRef.getBody()) && Objects.nonNull(profileImageRef.getBody().ref()) ?
                     profileImageRef.getBody().ref() : "";
@@ -154,11 +161,13 @@ public class UserServiceImpl implements UserService {
         }
 
         var businessIds = businessRepository.findIdCollectionByUserId(id);
+        logger.debug("Found {} business ids for userId {}", businessIds.size(), id);
         return ResponseEntity.ok(getUserMapper.fromBackbone(result, profileRef, businessIds));
     }
 
     @Override
     public ResponseEntity<Void> update(UUID userId, PutUserRequest request) {
+        logger.trace("update() invoked for userId {}", userId);
         try {
             // Validate request object
             if (Objects.isNull(request)) {
@@ -204,6 +213,7 @@ public class UserServiceImpl implements UserService {
             }
 
             BackboneUserUpdateRequest backboneRequest = putUserMapper.toBackbone(UUID.fromString(applicationIdString), request);
+            logger.debug("Backbone update payload prepared for userId {}", userId);
             logger.info("Updating user: {} with request: {}", userId, backboneRequest);
             return backboneClient.userPartialUpdate(userId, backboneRequest);
         } catch (FeignException e) {
@@ -237,6 +247,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<Void> deleteUserByUserAndApplication(UUID userId) {
         var applicationId = UUID.fromString(applicationIdString);
+        logger.trace("deleteUserByUserAndApplication() invoked for userId {} and applicationId {}", userId, applicationId);
         logger.info("Attempting to delete user with ID: {} for application: {}", userId, applicationId);
 
         try {
@@ -258,6 +269,7 @@ public class UserServiceImpl implements UserService {
             // For any non-success status, map specific statuses if needed, otherwise treat as not modified
             HttpStatusCode status = response.getStatusCode();
             if (HttpStatus.UNAUTHORIZED.equals(status) || HttpStatus.SERVICE_UNAVAILABLE.equals(status)) {
+                logger.debug("Delete request returned retryable/non-terminal status {} for user: {} application: {}", status, userId, applicationId);
                 logger.info("Delete request returned status {} for user: {} application: {}", status, userId, applicationId);
                 return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
             }
@@ -288,6 +300,7 @@ public class UserServiceImpl implements UserService {
             logger.warn("Error deleting user with ID: {} for application: {}", userId, applicationId, e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        logger.trace("Delete user flow finished with NOT_MODIFIED for userId {}", userId);
         return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
     }
 
@@ -298,6 +311,7 @@ public class UserServiceImpl implements UserService {
      * @return ResponseEntity with error details if validation fails, null if validation passes
      */
     private ResponseEntity<Void> validateRoleIds(List<UUID> roleIds) {
+        logger.trace("validateRoleIds() invoked with {} roleIds", roleIds.size());
         // Check for empty collection (removing all roles)
         if (roleIds.isEmpty()) {
             logger.warn("Attempting to remove all roles from user");
@@ -336,6 +350,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private String generateAlias(UserCreateRequest userCreateRequest, boolean afterFirstTime, int time) {
+        logger.trace("generateAlias() invoked for email {} attempt {}", userCreateRequest.email(), time);
         String alias;
         StringBuilder aliasTemp = new StringBuilder(userCreateRequest.firstname().substring(0, 1)
                 .concat(userCreateRequest.lastname()));
@@ -350,6 +365,7 @@ public class UserServiceImpl implements UserService {
         alias = fixAlias(aliasTemp);
         try {
             backboneClient.checkAlias(alias, UUID.fromString(applicationIdString));
+            logger.debug("Alias '{}' is available", alias);
             return alias.toLowerCase(Locale.ROOT);
         } catch (FeignException e) {
             logger.warn(USERNAME_ALREADY_EXISTS, alias);
@@ -358,6 +374,7 @@ public class UserServiceImpl implements UserService {
         if (time <= MAX_ALIAS_TRY) {
             return generateAlias(userCreateRequest, false, time + 1);
         }
+        logger.error("Alias generation failed for email {} after {} attempts", userCreateRequest.email(), MAX_ALIAS_TRY);
         throw new StandardException("Alias generation failed", MessageType.DEFAULT_MESSAGE);
     }
 

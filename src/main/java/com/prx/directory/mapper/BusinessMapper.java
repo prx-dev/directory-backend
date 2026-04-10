@@ -12,6 +12,7 @@ import com.prx.directory.jpa.entity.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /// Mapper for the entity {@link BusinessEntity} and its DTO {@link BusinessCreateRequest} and {@link BusinessCreateResponse}.
@@ -88,7 +89,8 @@ public interface BusinessMapper {
 
     default String getValueByName(ContactTypeKey key, BusinessEntity businessEntity) {
         return businessEntity.getDigitalContacts().stream().filter(digitalContactEntity ->
-                key.toString().equals(digitalContactEntity.getContactType().getName())
+                Objects.nonNull(digitalContactEntity.getContactType())
+                        && key.toString().equals(digitalContactEntity.getContactType().getName())
         ).map(DigitalContactEntity::getContent).findFirst().orElse(null);
     }
 

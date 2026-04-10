@@ -18,6 +18,9 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.util.EnumSet;
 
 import static com.prx.directory.constant.DirectoryAppConstants.ENTITY_PACKAGE;
 import static com.prx.directory.constant.DirectoryAppConstants.REPOSITORY_PACKAGE;
@@ -27,7 +30,7 @@ import static com.prx.directory.constant.DirectoryAppConstants.REPOSITORY_PACKAG
  * Programmatic configuration of a HikariCP DataSource with optional
  * PostgreSQL SSL/TLS driver properties and Hikari connection pool tuning.
  *
- * <p>This configuration will create and expose a {@link javax.sql.DataSource}
+ * <p>This configuration will create and expose a {@link DataSource}
  * bean when no other DataSource bean is present in the Spring context. It reads
  * standard Spring Boot datasource properties (URL, username, password) and
  * several custom properties under the {@code app.db.ssl.*} prefix to enable
@@ -72,7 +75,7 @@ import static com.prx.directory.constant.DirectoryAppConstants.REPOSITORY_PACKAG
  * verification and certificate chain validation. Keep the CA certificate file
  * protected (file system permissions) and avoid exposing it in logs.</p>
  *
- * @see com.zaxxer.hikari.HikariDataSource
+ * @see HikariDataSource
  */
 @Configuration
 @EntityScan(basePackages = {ENTITY_PACKAGE})
@@ -153,6 +156,18 @@ public class DataSourceSslConfig {
     private long initFailTimeout;
 
     /**
+     * Holds the path to the database certificate used for enabling SSL connections.
+     * This property is configurable via an external configuration source, typically
+     * provided using the `prx.database-cert` key. If the value is not specified,
+     * it defaults to "na".
+     *
+     * The value can represent a file system path or other supported locations
+     * depending on the specific requirements of the database driver.
+     */
+    @Value("${prx.database-cert:na}")
+    private String databaseCert;
+
+    /**
      * Create and configure a {@link HikariDataSource} bean.
      *
      * <p>The returned DataSource is configured with the provided JDBC URL,
@@ -193,7 +208,8 @@ public class DataSourceSslConfig {
                         if (in == null) {
                             throw new IllegalArgumentException("Root certificate was not found SSL in the classpath: " + resourcePath);
                         }
-                        Path tempFile = Files.createTempFile("db-root-cert", ".crt");
+                        var perms = EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE);
+                        Path tempFile = Files.createTempFile(databaseCert, ".crt", PosixFilePermissions.asFileAttribute(perms));
                         tempFile.toFile().deleteOnExit();
                         try (FileOutputStream out = new FileOutputStream(tempFile.toFile())) {
                             in.transferTo(out);
