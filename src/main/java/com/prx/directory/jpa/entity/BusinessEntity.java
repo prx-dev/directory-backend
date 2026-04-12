@@ -103,6 +103,10 @@ public class BusinessEntity implements Serializable {
     @Column(name = "timezone_fk")
     private UUID timezoneFk;
 
+    @Size(max = 512)
+    @Column(name = "profile_image_ref", length = 512)
+    private String profileImageRef;
+
     public BusinessEntity() {
         // Default constructor
     }
@@ -288,5 +292,13 @@ public class BusinessEntity implements Serializable {
      */
     public void setTimezoneFk(UUID timezoneFk) {
         this.timezoneFk = timezoneFk;
+    }
+
+    public String getProfileImageRef() {
+        return profileImageRef;
+    }
+
+    public void setProfileImageRef(String profileImageRef) {
+        this.profileImageRef = profileImageRef;
     }
 }

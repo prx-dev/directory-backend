@@ -22,7 +22,8 @@ class BusinessTOTest {
         BusinessTO businessTO = new BusinessTO(
                 id, "Test Business", "Description", userId, categoryId,
                 "test@example.com", "cs@example.com", "om@example.com",
-                "https://example.com", now, now, false, timezone
+                "https://example.com", now, now, false, timezone,
+                "https://cdn.example.com/businesses/photo.jpg"
         );
 
         assertEquals(id, businessTO.id());
@@ -37,6 +38,7 @@ class BusinessTOTest {
         assertEquals(timezone, businessTO.timezoneId());
         assertEquals(now, businessTO.createdDate());
         assertEquals(now, businessTO.updatedDate());
+        assertEquals("https://cdn.example.com/businesses/photo.jpg", businessTO.profileImageRef());
     }
 
     @Test
@@ -51,7 +53,8 @@ class BusinessTOTest {
         BusinessTO businessTO = new BusinessTO(
                 id, "Test Business", "Description", userId, categoryId,
                 "test@example.com", "cs@example.com", "om@example.com",
-                "https://example.com", now, now, true, timezone
+                "https://example.com", now, now, true, timezone,
+                "https://cdn.example.com/businesses/photo.jpg"
         );
 
         String expected = "BusinessTO{" +
@@ -68,6 +71,7 @@ class BusinessTOTest {
                 ", updatedDate=" + now +
                 ", verified=" + true +
                 ", timezoneId=" + timezone +
+                ", profileImageRef='https://cdn.example.com/businesses/photo.jpg'" +
                 '}';
 
         assertEquals(expected, businessTO.toString());

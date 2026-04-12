@@ -15,8 +15,10 @@ import org.mapstruct.Mapping;
 import java.util.Objects;
 import java.util.UUID;
 
-/// Mapper for the entity {@link BusinessEntity} and its DTO {@link BusinessCreateRequest} and {@link BusinessCreateResponse}.
-/// This interface extends JpaRepository to provide CRUD operations for BusinessEntity.
+/**
+ * Mapper for the entity {@link BusinessEntity} and its DTO {@link BusinessCreateRequest} and {@link BusinessCreateResponse}.
+ * This interface extends JpaRepository to provide CRUD operations for BusinessEntity.
+ */
 @Mapper(
         // Specifies that the mapper should be a Spring bean.
         uses = {BusinessEntity.class, BusinessCreateRequest.class, BusinessCreateResponse.class},
@@ -25,10 +27,12 @@ import java.util.UUID;
 )
 public interface BusinessMapper {
 
-    /// Converts a BusinessCreateRequest object to a BusinessEntity object.
-    ///
-    /// @param businessCreateRequest The BusinessCreateRequest object to convert.
-    /// @return The converted BusinessEntity object.
+    /**
+     * Converts a BusinessCreateRequest object to a BusinessEntity object.
+     *
+     * @param businessCreateRequest The BusinessCreateRequest object to convert.
+     * @return The converted BusinessEntity object.
+     */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", source = "name")
     @Mapping(target = "description", source = "description")
@@ -38,20 +42,25 @@ public interface BusinessMapper {
     @Mapping(target = "categoryFk", expression = "java(getCategory(businessCreateRequest.categoryId()))")
     BusinessEntity toSource(BusinessCreateRequest businessCreateRequest);
 
-    /// Converts a BusinessEntity object to a BusinessCreateResponse object.
-    ///
-    /// @param businessEntity The BusinessEntity object to convert.
-    /// @return The converted BusinessCreateResponse object.
+    /**
+     *
+     * Converts a BusinessEntity object to a BusinessCreateResponse object.
+     *
+     * @param businessEntity The BusinessEntity object to convert.
+     * @return The converted BusinessCreateResponse object.
+     */
     @Mapping(target = "id", source = "id")
     @Mapping(target = "businessName", source = "name")
     @Mapping(target = "createdDate", source = "createdDate")
     @Mapping(target = "updatedDate", source = "lastUpdate")
     BusinessCreateResponse toBusinessCreateResponse(BusinessEntity businessEntity);
 
-    /// The method maps the fields of the BusinessEntity object to the fields of the BusinessTO object.
-    ///
-    /// @param businessEntity The BusinessEntity object to convert.
-    /// @return The converted BusinessTO object.
+    /**
+     * The method maps the fields of the BusinessEntity object to the fields of the BusinessTO object.
+     *
+     * @param businessEntity The BusinessEntity object to convert.
+     * @return The converted BusinessTO object.
+     */
     @Mapping(target = "id", source = "id")
     @Mapping(target = "name", source = "name")
     @Mapping(target = "verified", source = "verified")
@@ -65,28 +74,40 @@ public interface BusinessMapper {
     @Mapping(target = "website", expression = "java(getValueByName(com.prx.directory.constant.ContactTypeKey.WBH, businessEntity))")
     @Mapping(target = "customerServiceEmail", expression = "java(getValueByName(com.prx.directory.constant.ContactTypeKey.SCE, businessEntity))")
     @Mapping(target = "orderManagementEmail", expression = "java(getValueByName(com.prx.directory.constant.ContactTypeKey.MEC, businessEntity))")
+    @Mapping(target = "profileImageRef", source = "profileImageRef")
     BusinessTO toBusinessTO(BusinessEntity businessEntity);
 
-    /// Converts a BusinessEntity object to a BusinessCreateResponse object.
-    ///
-    /// @param userId The BusinessEntity object to convert.
-    /// @return The converted BusinessCreateResponse object.
+    /**
+     * Converts a BusinessEntity object to a BusinessCreateResponse object.
+     *
+     * @param userId The BusinessEntity object to convert.
+     * @return The converted BusinessCreateResponse object.
+     */
     default UserEntity getUser(UUID userId) {
         UserEntity userEntity = new UserEntity();
         userEntity.setId(userId);
         return userEntity;
     }
 
-    /// Converts a BusinessEntity object to a BusinessCreateResponse object.
-    ///
-    /// @param categoryId The BusinessEntity object to convert.
-    /// @return The converted BusinessCreateResponse object.
+    /**
+     * Converts a BusinessEntity object to a BusinessCreateResponse object.
+     * @param categoryId The BusinessEntity object to convert.
+     * @return The converted BusinessCreateResponse object.
+     */
     default CategoryEntity getCategory(UUID categoryId) {
         CategoryEntity categoryEntity = new CategoryEntity();
         categoryEntity.setId(categoryId);
         return categoryEntity;
     }
 
+    /**
+     * Retrieves the value associated with a specific contact type key from the digital contacts
+     * of a given business entity.
+     *
+     * @param key The contact type key used to identify the desired contact type.
+     * @param businessEntity The business entity containing the digital contacts information.
+     * @return The content value of the matching contact type, or null if no matching contact is found.
+     */
     default String getValueByName(ContactTypeKey key, BusinessEntity businessEntity) {
         return businessEntity.getDigitalContacts().stream().filter(digitalContactEntity ->
                 Objects.nonNull(digitalContactEntity.getContactType())

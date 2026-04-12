@@ -229,7 +229,7 @@ class BusinessServiceImplTest {
         entity.setId(id);
 
         BusinessTO to = new BusinessTO(id, "Name", "Desc", UUID.randomUUID(), UUID.randomUUID(),
-                "email", null, null, null, LocalDateTime.now(), LocalDateTime.now(), false, UUID.randomUUID());
+                "email", null, null, null, LocalDateTime.now(), LocalDateTime.now(), false, UUID.randomUUID(), null);
 
         when(businessRepository.findBusinessWithDigitalContactsById(id)).thenReturn(Optional.of(entity));
         when(businessMapper.toBusinessTO(entity)).thenReturn(to);
@@ -260,7 +260,7 @@ class BusinessServiceImplTest {
         Set<BusinessEntity> entities = Set.of(entity);
 
         BusinessTO to = new BusinessTO(entity.getId(), "Name", "Desc", userId, UUID.randomUUID(),
-                "email", null, null, null, LocalDateTime.now(), LocalDateTime.now(), false, UUID.randomUUID());
+                "email", null, null, null, LocalDateTime.now(), LocalDateTime.now(), false, UUID.randomUUID(), null);
 
         when(businessRepository.findByUserEntityFk(userId)).thenReturn(entities);
         when(businessMapper.toBusinessTO(entity)).thenReturn(to);
@@ -291,7 +291,7 @@ class BusinessServiceImplTest {
         entity.setId(UUID.randomUUID());
 
         BusinessTO to = new BusinessTO(entity.getId(), name, "Desc", UUID.randomUUID(), UUID.randomUUID(),
-                "email", null, null, null, LocalDateTime.now(), LocalDateTime.now(), false, UUID.randomUUID());
+                "email", null, null, null, LocalDateTime.now(), LocalDateTime.now(), false, UUID.randomUUID(), null);
 
         when(businessRepository.findByName(name)).thenReturn(Optional.of(entity));
         when(businessMapper.toBusinessTO(entity)).thenReturn(to);
