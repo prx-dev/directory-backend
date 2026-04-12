@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 This project adheres (loosely) to "Keep a Changelog" and follows semantic versioning where practical.
 
+## [Unreleased] - 2026-04-12
+
+### Added
+- **Business profile image upload via Cloudflare R2** — new `POST /api/v1/businesses/images/{businessId}` endpoint stores the profile image in R2 and persists the public URL in the business record.
+  - `BusinessProfileImageService` — local interface extending `ImageService`; adds `uploadForBusiness(UUID, byte[], String)` method.
+  - `BusinessProfileImageServiceImpl` — `@Service` implementing `BusinessProfileImageService`. Injects `CloudflareR2StorageClient` and `BusinessRepository`. Implements:
+    - `upload(ImageUploadRequest)` — generic upload; auto-generates key under `businesses/` prefix when `objectKey` is null.
+    - `uploadForBusiness(UUID, byte[], String)` — scoped upload; generates key as `businesses/{businessId}/{uuid}.{ext}`, uploads bytes to R2, and saves the public URL in `business.profile_image_ref`. Returns `404` when the business is not found.
+    - `getReference(String)` — returns the public URL without downloading bytes.
+  - `BusinessProfileImageController` — `@RestController` at `/api/v1/businesses/images` implementing `ImageApi`. Overrides `upload`, `getReference`, and adds the new business-scoped `POST /{businessId}` endpoint.
+- **Flyway migration `V3`** — `V3__add_profile_image_ref_to_business.sql` adds `profile_image_ref VARCHAR(512) NULL` to `directory_site.business`.
+- **`BusinessEntity`** — new `profileImageRef` field (`@Column(name = "profile_image_ref")`) with getter and setter.
+- **`BusinessTO`** — new `profileImageRef` record component; `toString()` updated.
+- **`BusinessMapper`** — added `@Mapping(target = "profileImageRef", source = "profileImageRef")` to `toBusinessTO`.
+- **Unit tests** — 18 new test cases across two new test classes:
+  - `BusinessProfileImageServiceImplTest` — covers `upload` with explicit and generated keys, extension mapping for all supported MIME types (`image/png`, `image/webp`, `image/gif`, default → `.jpg`), `uploadForBusiness` happy path and 404 branch, and `getReference`.
+  - `BusinessProfileImageControllerTest` — covers `getService`, `upload` (explicit and null key), `getReference`, `uploadForBusiness` with explicit content type, null content type defaulting to `image/jpeg`, and 404 propagation.
+
+### Changed
+- Updated existing `BusinessTOTest`, `BusinessEntityTest`, `BusinessServiceImplTest` (×3), and `FavoriteServiceImplGetFavoritesTest` (×2) constructor calls to include the new `profileImageRef` component.
+
+---
+
 ## [Unreleased] - 2026-02-16
 
 ### Added

@@ -72,4 +72,13 @@ class BusinessEntityTest {
         businessEntity.setUserFk(userEntity);
         assertEquals(userEntity, businessEntity.getUserFk());
     }
+
+    @Test
+    @DisplayName("Get Profile Image Ref Test")
+    void getProfileImageRefTest() {
+        BusinessEntity businessEntity = new BusinessEntity();
+        String imageRef = "https://cdn.example.com/businesses/photo.jpg";
+        businessEntity.setProfileImageRef(imageRef);
+        assertEquals(imageRef, businessEntity.getProfileImageRef());
+    }
 }

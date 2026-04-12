@@ -22,7 +22,8 @@ public record BusinessTO(
         @JsonFormat(pattern = DateUtil.PATTERN_DATE_TIME_T)
         LocalDateTime updatedDate,
         boolean verified,
-        UUID timezoneId
+        UUID timezoneId,
+        String profileImageRef
 ) {
 
     @Override
@@ -41,6 +42,7 @@ public record BusinessTO(
                 ", updatedDate=" + updatedDate +
                 ", verified=" + verified +
                 ", timezoneId=" + timezoneId +
+                ", profileImageRef='" + profileImageRef + '\'' +
                 '}';
     }
 }

@@ -121,7 +121,7 @@ class FavoriteServiceImplGetFavoritesTest {
 
             when(userFavoriteRepository.findByUserId(userId)).thenReturn(List.of(uf1, uf2, uf3));
 
-            BusinessTO bto = new BusinessTO(bId, "B", null, null, null, null, null, null, null, null, null, false, null);
+            BusinessTO bto = new BusinessTO(bId, "B", null, null, null, null, null, null, null, null, null, false, null, null);
             OfferTO oto = new OfferTO(cId, "C", null, null, ce.getStartDate(), ce.getEndDate(), null, false);
 
             when(businessMapper.toBusinessTO(any(BusinessEntity.class))).thenReturn(bto);
@@ -202,7 +202,7 @@ class FavoriteServiceImplGetFavoritesTest {
             when(businessMapper.toBusinessTO(any(BusinessEntity.class)))
                     .thenAnswer(inv -> {
                         BusinessEntity b = inv.getArgument(0);
-                        return new BusinessTO(b.getId(), b.getName(), null, null, null, null, null, null, null, null, null, false, null);
+                        return new BusinessTO(b.getId(), b.getName(), null, null, null, null, null, null, null, null, null, false, null, null);
                     });
             when(campaignMapper.toOfferTO(any(CampaignEntity.class)))
                     .thenAnswer(inv -> {

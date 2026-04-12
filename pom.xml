@@ -42,7 +42,7 @@
         <jacoco.argLine/>
         <!--        PRX Commons-->
         <com.prx.commons.version>0.0.1</com.prx.commons.version>
-        <com.prx.commons-services.version>0.0.1</com.prx.commons-services.version>
+        <com.prx.commons-services.version>0.0.2</com.prx.commons-services.version>
         <com.prx.security-oauth.version>0.0.1</com.prx.security-oauth.version>
         <!--        MAVEN-->
         <maven.compiler.release>${java.version}</maven.compiler.release>
@@ -548,14 +548,6 @@
                             <artifactId>mapstruct-processor</artifactId>
                             <version>${mapstruct.version}</version>
                         </path>
-                        <!-- If you use Lombok, uncomment and set the version -->
-                        <!--
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-                        -->
                     </annotationProcessorPaths>
                 </configuration>
                 <executions>
