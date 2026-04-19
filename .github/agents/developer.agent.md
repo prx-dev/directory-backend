@@ -5,6 +5,11 @@ user-invocable: true
 subagent-only: false
 tools: ['run_in_terminal', 'read_file', 'insert_edit_into_file', 'replace_string_in_file', 'create_file', 'grep_search', 'file_search', 'get_errors']
 skills: ['java-spring-development', 'rest-api-design', 'jpa-persistence', 'mapstruct-mapping', 'feign-integration', 'kafka-messaging', 'api-contract-review', 'junit5-testing']
+skill-definition: '.github/skills/developer/SKILL.md'
+tool-docs:
+  - '.github/tools/maven-build.tool.md'
+  - '.github/tools/git.tool.md'
+  - '.github/tools/openapi-validator.tool.md'
 ---
 
 # Developer Agent

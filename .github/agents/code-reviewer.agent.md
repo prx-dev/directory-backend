@@ -14,6 +14,11 @@ skills:
   - spring-boot-best-practices
   - clean-code
   - pmd-analysis
+skill-definition: '.github/skills/code-reviewer/SKILL.md'
+tool-docs:
+  - '.github/tools/sonar-analysis.tool.md'
+  - '.github/tools/pmd-qodana.tool.md'
+  - '.github/tools/maven-build.tool.md'
 ---
 
 # Code Reviewer Subagent
